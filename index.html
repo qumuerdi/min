@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style>
+			
+			* {
+				margin: 0;
+				padding: 0;
+			}
+
+			canvas {
+				/* 增高对比度 保持鲜艳色彩 */
+				filter: contrast(150%);
+				border: 2px solid red;
+				background: #ccc;
+			}
+
+			input {
+				font-size: 30px;
+			}
+		</style>
+	</head>
+	<body>
+		<img src="" alt="">
+		<input type="file" class="file"><br/>
+		<input type="text" placeholder="这里输入文字" class="text">
+		<canvas id="canvas"></canvas>
+		<script>
+			let file = document.querySelector('.file')
+			let imgs,imgBase64
+			file.addEventListener('change', function(e) {
+				imgs = this.files[0]
+				let reader = new FileReader()
+				reader.readAsDataURL(imgs)
+				reader.onloadend = function(e) {
+					imgBase64 = e.target.result
+
+					let canvas = document.querySelector('#canvas')
+					let ctx = canvas.getContext('2d')
+					let w = 1200
+					let spacing = w / 80
+					let len = w / spacing
+
+					canvas.width = w
+					canvas.height = w
+
+					let img = new Image()
+					// img.src = 'tx3.jpg'
+					img.src = imgBase64
+					let text = document.querySelector('.text').value
+					let rgbas = []
+					img.onload = function() {
+						ctx.drawImage(img, 0, 0, 100, 100)
+						let data = ctx.getImageData(0, 0, 100, 100).data
+						let j = 0
+						for (let i = 0; i < data.length; i += 4) {
+							let temp = []
+							for (let j = 0; j < 4; j++) {
+								temp.push(data[i + j])
+							}
+							rgbas.push([temp])
+						}
+						// console.log(rgbas);
+						draw()
+					}
+
+					function draw() {
+						ctx.fillStyle = '#ccc'
+						ctx.clearRect(0, 0, w, w)
+						ctx.fillRect(0, 0, w, w)
+						let x = 0
+						let y = 0
+						//Arial 粗体  serif 标准 abfont 自定义
+						ctx.font = spacing + 'px Arial'
+
+						let multiple = w / 100
+						rgbas.forEach((v, i) => {
+							let color = `rgb(${v[0][0]+10},${v[0][1]+10},${v[0][2]+10}`
+							ctx.fillStyle = color
+							if (x >= 100) {
+								x = 0
+								y++
+							}
+							ctx.fillText(text[Math.floor(Math.random() * text.length)], x * multiple, y *
+								multiple)
+							x++
+						})
+					}
+
+					canvas.onclick = function() {
+						let img = document.querySelector('img')
+						img.src = canvas.toDataURL('image/png')
+						img.width = 800
+						img.height = 800
+						// console.log();
+
+					}
+
+
+
+
+
+
+
+
+
+				}
+			})
+		</script>
+	</body>
+</html>
